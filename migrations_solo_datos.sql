@@ -13,42 +13,42 @@
 -- CLIENTES
 -- =====================================================
 
-INSERT INTO customers (name, contact_name, email, phone, address, notes, created_by, created_at, updated_at)
+INSERT INTO customers (name, email, phone, address, customer_type, notes, user_id, created_at, updated_at)
 SELECT
   'Constructora Sol S.A.',
-  'Roberto Martínez',
   'roberto@constructorasol.com',
   '+34 912 345 678',
   'Calle Mayor 45, Madrid',
-  'Cliente VIP - Pago a 30 días',
+  'company',
+  'Cliente VIP - Contacto: Roberto Martínez - Pago a 30 días',
   (SELECT id FROM user_profiles WHERE email = 'admin@vidrios.com' LIMIT 1),
   now(),
   now()
 WHERE NOT EXISTS (SELECT 1 FROM customers WHERE email = 'roberto@constructorasol.com')
   AND EXISTS (SELECT 1 FROM user_profiles WHERE email = 'admin@vidrios.com');
 
-INSERT INTO customers (name, contact_name, email, phone, address, notes, created_by, created_at, updated_at)
+INSERT INTO customers (name, email, phone, address, customer_type, notes, user_id, created_at, updated_at)
 SELECT
   'Diseños Modernos',
-  'Laura García',
   'laura@disenosmodernos.com',
   '+34 933 456 789',
   'Av. Diagonal 123, Barcelona',
-  'Proyectos de interiorismo',
+  'company',
+  'Proyectos de interiorismo - Contacto: Laura García',
   (SELECT id FROM user_profiles WHERE email = 'admin@vidrios.com' LIMIT 1),
   now(),
   now()
 WHERE NOT EXISTS (SELECT 1 FROM customers WHERE email = 'laura@disenosmodernos.com')
   AND EXISTS (SELECT 1 FROM user_profiles WHERE email = 'admin@vidrios.com');
 
-INSERT INTO customers (name, contact_name, email, phone, address, notes, created_by, created_at, updated_at)
+INSERT INTO customers (name, email, phone, address, customer_type, notes, user_id, created_at, updated_at)
 SELECT
-  'Ventanas del Norte',
   'Carlos Ruiz',
   'carlos@ventanasdelnorte.com',
   '+34 944 567 890',
   'Gran Vía 78, Bilbao',
-  'Especialistas en ventanas',
+  'individual',
+  'Especialista en ventanas - Compras frecuentes',
   (SELECT id FROM user_profiles WHERE email = 'usuario1@vidrios.com' LIMIT 1),
   now(),
   now()
