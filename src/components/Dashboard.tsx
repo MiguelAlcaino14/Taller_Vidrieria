@@ -13,12 +13,14 @@ import {
   Edit,
   ArrowRight,
   List,
-  Grid
+  Grid,
+  FileUp
 } from 'lucide-react';
 import { Order, Customer, OrderStatus } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { OrdersListView } from './OrdersListView';
+import { SVGOrderImportModal } from './SVGOrderImportModal';
 
 interface DashboardProps {
   onNavigateToOrders: () => void;
@@ -77,6 +79,7 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
   const [recentActivity, setRecentActivity] = useState<RecentActivity[]>([]);
   const [customers, setCustomers] = useState<Map<string, Customer>>(new Map());
   const [loading, setLoading] = useState(true);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -197,6 +200,15 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
     return { level: 'ok', color: 'bg-green-100 border-green-300 text-green-800', label: 'A tiempo' };
   };
 
+  const handleImportSuccess = async (orderId: string) => {
+    setShowImportModal(false);
+    await loadDashboardData();
+    const importedOrder = recentProjects.find(o => o.id === orderId);
+    if (importedOrder) {
+      onEditOrder(importedOrder);
+    }
+  };
+
   if (!profile) {
     return null;
   }
@@ -220,6 +232,13 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
             </div>
             <div className="flex items-center gap-2">
               <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+              >
+                <FileUp size={18} />
+                <span className="hidden sm:inline">Importar SVG</span>
+              </button>
+              <button
                 onClick={() => setViewMode('summary')}
                 className="flex items-center gap-2 px-4 py-2 border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-lg transition-colors"
               >
@@ -238,6 +257,13 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
         <div className="flex-1 overflow-hidden">
           <OrdersListView onEditOrder={onEditOrder} onViewOrder={onViewOrder} />
         </div>
+        {showImportModal && (
+          <SVGOrderImportModal
+            onClose={() => setShowImportModal(false)}
+            onImportSuccess={handleImportSuccess}
+            customers={Array.from(customers.values())}
+          />
+        )}
       </div>
     );
   }
@@ -252,6 +278,13 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
           </div>
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
+              <button
+                onClick={() => setShowImportModal(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
+              >
+                <FileUp size={18} />
+                <span className="hidden sm:inline">Importar SVG</span>
+              </button>
               <button
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg"
               >
@@ -538,6 +571,13 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
           </div>
         </div>
       </div>
+      {showImportModal && (
+        <SVGOrderImportModal
+          onClose={() => setShowImportModal(false)}
+          onImportSuccess={handleImportSuccess}
+          customers={Array.from(customers.values())}
+        />
+      )}
     </div>
   );
 }

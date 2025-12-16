@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Plus, Filter } from 'lucide-react';
+import { Plus, Filter, FileUp } from 'lucide-react';
 import { Order, OrderStatus, Customer } from '../types';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { OrderCard } from './OrderCard';
+import { SVGOrderImportModal } from './SVGOrderImportModal';
 
 interface OrderBoardProps {
   onNewOrder: () => void;
@@ -27,6 +28,7 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
   const [customers, setCustomers] = useState<Map<string, Customer>>(new Map());
   const [loading, setLoading] = useState(true);
   const [showCancelled, setShowCancelled] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
 
   useEffect(() => {
     if (profile) {
@@ -103,6 +105,15 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
 
   const cancelledOrders = orders.filter((order) => order.status === 'cancelled');
 
+  const handleImportSuccess = async (orderId: string) => {
+    setShowImportModal(false);
+    await loadData();
+    const importedOrder = orders.find(o => o.id === orderId);
+    if (importedOrder) {
+      onEditOrder(importedOrder);
+    }
+  };
+
   if (!profile) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -117,6 +128,13 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
         <div className="flex items-center justify-between">
           <h2 className="text-2xl font-bold text-gray-800">Tablero de Pedidos</h2>
           <div className="flex items-center gap-3">
+            <button
+              onClick={() => setShowImportModal(true)}
+              className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg font-medium transition-colors"
+            >
+              <FileUp size={20} />
+              Importar SVG
+            </button>
             <button
               onClick={() => setShowCancelled(!showCancelled)}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-colors ${
@@ -224,6 +242,13 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
           </div>
         )}
       </div>
+      {showImportModal && (
+        <SVGOrderImportModal
+          onClose={() => setShowImportModal(false)}
+          onImportSuccess={handleImportSuccess}
+          customers={Array.from(customers.values())}
+        />
+      )}
     </div>
   );
 }
