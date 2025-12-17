@@ -19,7 +19,7 @@ export default function InventoryManagement({ onAddSheet, onEditSheet }: Invento
   const [filterMaterial, setFilterMaterial] = useState<MaterialType | 'all'>('all');
   const [filterStatus, setFilterStatus] = useState<SheetStatus | 'all'>('all');
 
-  const isAdmin = profile?.role === 'admin' || profile?.role === 'manager';
+  const isAdmin = profile?.role === 'admin';
 
   useEffect(() => {
     loadInventory();

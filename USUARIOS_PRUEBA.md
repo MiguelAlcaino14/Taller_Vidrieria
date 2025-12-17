@@ -1,6 +1,6 @@
 # Usuarios de Prueba - Sistema de Optimización de Corte de Vidrios
 
-Este documento contiene las credenciales de 3 usuarios de prueba con diferentes niveles de acceso.
+Este documento contiene las credenciales de 5 usuarios de prueba con diferentes niveles de acceso.
 
 ## Credenciales de Acceso
 
@@ -9,90 +9,105 @@ Este documento contiene las credenciales de 3 usuarios de prueba con diferentes 
 - **Contraseña:** Admin123!
 - **Rol:** Administrador
 - **Permisos:**
-  - Ve TODOS los proyectos del sistema
-  - Puede gestionar cualquier proyecto
-  - Puede ver perfiles de todos los usuarios
+  - Acceso completo al sistema
+  - Ve TODOS los pedidos de todos los usuarios
+  - Puede gestionar cualquier pedido
+  - Puede eliminar registros
+  - Gestiona configuración del sistema
+  - Gestiona catálogos de precios
 
-### 2. Usuario Manager
+### 2. Operador (Ex-Manager)
 - **Email:** manager@vidrios.com
 - **Contraseña:** Manager123!
-- **Rol:** Manager
+- **Rol:** Operador
 - **Permisos:**
-  - Ve sus propios proyectos
-  - Ve proyectos de los usuarios asignados a su cargo
-  - Gestiona a 2 usuarios básicos
+  - Ve TODOS los pedidos del sistema (para poder trabajar en cualquiera)
+  - Ve TODOS los clientes (para identificar pedidos)
+  - Ve TODO el inventario de materiales
+  - Puede crear y editar pedidos
+  - Puede crear y editar clientes
+  - Puede gestionar inventario
+  - NO puede eliminar registros
 
-### 3. Usuario Básico #1
+### 3. Operador #1 (Ex-Usuario Básico)
 - **Email:** usuario1@vidrios.com
 - **Contraseña:** Usuario123!
-- **Rol:** Usuario
+- **Rol:** Operador
 - **Permisos:**
-  - Solo ve sus propios proyectos
-  - No puede ver proyectos de otros usuarios
+  - Mismos permisos que el Operador arriba
+  - Ve todos los pedidos del taller
+  - Puede trabajar con cualquier pedido asignado
 
-### 4. Usuario Básico #2
+### 4. Operador #2 (Ex-Usuario Básico)
 - **Email:** usuario2@vidrios.com
 - **Contraseña:** Usuario123!
-- **Rol:** Usuario
+- **Rol:** Operador
 - **Permisos:**
-  - Solo ve sus propios proyectos
-  - No puede ver proyectos de otros usuarios
+  - Mismos permisos que el Operador arriba
+  - Ve todos los pedidos del taller
+  - Puede trabajar con cualquier pedido asignado
 
-### 5. Miguel Alcaino
+### 5. Miguel Alcaino (Operador)
 - **Email:** malcaino@vidrios.com
 - **Contraseña:** Miguel123!
-- **Rol:** Usuario
+- **Rol:** Operador
 - **Permisos:**
-  - Solo ve sus propios proyectos
-  - No puede ver proyectos de otros usuarios
+  - Mismos permisos que los operadores arriba
+  - Ve todos los pedidos del taller
+  - Puede trabajar con cualquier pedido asignado
 
-## Instrucciones para Crear los Usuarios
+## Sistema Actual
 
-Para probar el sistema, debes crear estos 4 usuarios manualmente:
+**IMPORTANTE:** El sistema ha sido actualizado a un modelo simplificado de roles:
 
-1. Abre la aplicación y haz clic en "Iniciar Sesión"
-2. Selecciona "¿No tienes cuenta? Regístrate"
-3. Crea cada usuario con los datos correspondientes:
-   - Para Admin: Nombre "Administrador Sistema", email "admin@vidrios.com", contraseña "Admin123!"
-   - Para Manager: Nombre "Manager Regional", email "manager@vidrios.com", contraseña "Manager123!"
-   - Para Usuario1: Nombre "Juan Pérez", email "usuario1@vidrios.com", contraseña "Usuario123!"
-   - Para Usuario2: Nombre "María González", email "usuario2@vidrios.com", contraseña "Usuario123!"
-
-4. Después de crear los usuarios, ejecuta la migración SQL que asigna los roles y relaciones
-
-## Estructura de Roles
+### Estructura de Roles Actual
 
 ```
 Administrador (admin@vidrios.com)
-    └── Ve TODOS los proyectos
+    └── Acceso completo: gestión total del sistema
 
-Manager (manager@vidrios.com)
-    ├── Juan Pérez (usuario1@vidrios.com)
-    └── María González (usuario2@vidrios.com)
+Operadores (todos los demás usuarios)
+    ├── manager@vidrios.com
+    ├── usuario1@vidrios.com
+    ├── usuario2@vidrios.com
+    └── malcaino@vidrios.com
+
+    └── Acceso compartido: ven TODOS los pedidos del taller para poder trabajarlos
 ```
 
-## Proyectos de Ejemplo
+### ¿Por qué este cambio?
 
-Una vez creados los usuarios y ejecutada la migración, cada usuario tendrá proyectos de ejemplo:
+En un taller de vidriería real, los operadores necesitan ver TODOS los pedidos para poder:
+- Identificar qué pedidos deben trabajar
+- Ver el estado de todos los trabajos en curso
+- Asignar materiales de manera eficiente
+- Optimizar el uso de placas de vidrio entre diferentes pedidos
 
-- **Admin:** 2 proyectos (Proyecto Corporativo A, Proyecto Corporativo B)
-- **Manager:** 2 proyectos (Proyecto Comercial Norte, Proyecto Residencial Sur)
-- **Usuario1 (Juan):** 2 proyectos (Proyecto Casa Particular, Ventanas Comedor)
-- **Usuario2 (María):** 2 proyectos (Espejos Baño Principal, Puertas de Vidrio)
+## Pedidos de Ejemplo
+
+El sistema incluye 20 pedidos de ejemplo distribuidos entre los usuarios:
+
+- **Admin:** Varios pedidos corporativos
+- **Operadores:** Varios pedidos residenciales y comerciales
+
+**TODOS los usuarios pueden ver TODOS los pedidos**, pero solo el admin puede eliminarlos.
 
 ## Pruebas Recomendadas
 
-1. **Como Usuario Básico:**
-   - Inicia sesión como usuario1@vidrios.com
-   - Verifica que solo ves tus 2 proyectos
-   - Intenta cargar proyectos - solo deberías ver los tuyos
+1. **Como Operador:**
+   - Inicia sesión como usuario1@vidrios.com o cualquier otro operador
+   - Verifica que ves TODOS los 20 pedidos del sistema
+   - Crea un nuevo pedido
+   - Edita cualquier pedido existente
+   - Intenta eliminar un pedido (debería fallar - solo admin puede hacerlo)
+   - Gestiona el inventario de materiales
+   - Crea clientes y visualiza todos los clientes del taller
 
-2. **Como Manager:**
-   - Inicia sesión como manager@vidrios.com
-   - Verifica que ves tus proyectos + los de Juan y María
-   - Nota los badges que indican el propietario de cada proyecto
-
-3. **Como Administrador:**
+2. **Como Administrador:**
    - Inicia sesión como admin@vidrios.com
-   - Verifica que ves TODOS los proyectos de todos los usuarios
-   - Puedes gestionar cualquier proyecto del sistema
+   - Verifica que ves TODOS los pedidos
+   - Puedes editar cualquier pedido
+   - Puedes eliminar pedidos
+   - Puedes gestionar el catálogo de precios
+   - Puedes cambiar roles de usuarios
+   - Acceso completo a toda la configuración del sistema
