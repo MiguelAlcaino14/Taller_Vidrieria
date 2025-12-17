@@ -1,6 +1,6 @@
 # Usuarios de Prueba - Sistema de Optimización de Corte de Vidrios
 
-Este documento contiene las credenciales de 5 usuarios de prueba con diferentes niveles de acceso.
+Este documento contiene las credenciales de 4 usuarios de prueba con diferentes niveles de acceso.
 
 ## Credenciales de Acceso
 
@@ -16,9 +16,9 @@ Este documento contiene las credenciales de 5 usuarios de prueba con diferentes 
   - Gestiona configuración del sistema
   - Gestiona catálogos de precios
 
-### 2. Operador (Ex-Manager)
-- **Email:** manager@vidrios.com
-- **Contraseña:** Manager123!
+### 2. Operador #1
+- **Email:** usuario1@vidrios.com
+- **Contraseña:** Usuario123!
 - **Rol:** Operador
 - **Permisos:**
   - Ve TODOS los pedidos del sistema (para poder trabajar en cualquiera)
@@ -29,25 +29,16 @@ Este documento contiene las credenciales de 5 usuarios de prueba con diferentes 
   - Puede gestionar inventario
   - NO puede eliminar registros
 
-### 3. Operador #1 (Ex-Usuario Básico)
-- **Email:** usuario1@vidrios.com
-- **Contraseña:** Usuario123!
-- **Rol:** Operador
-- **Permisos:**
-  - Mismos permisos que el Operador arriba
-  - Ve todos los pedidos del taller
-  - Puede trabajar con cualquier pedido asignado
-
-### 4. Operador #2 (Ex-Usuario Básico)
+### 3. Operador #2
 - **Email:** usuario2@vidrios.com
 - **Contraseña:** Usuario123!
 - **Rol:** Operador
 - **Permisos:**
-  - Mismos permisos que el Operador arriba
+  - Mismos permisos que el Operador #1
   - Ve todos los pedidos del taller
   - Puede trabajar con cualquier pedido asignado
 
-### 5. Miguel Alcaino (Operador)
+### 4. Miguel Alcaino (Operador)
 - **Email:** malcaino@vidrios.com
 - **Contraseña:** Miguel123!
 - **Rol:** Operador
@@ -67,7 +58,6 @@ Administrador (admin@vidrios.com)
     └── Acceso completo: gestión total del sistema
 
 Operadores (todos los demás usuarios)
-    ├── manager@vidrios.com
     ├── usuario1@vidrios.com
     ├── usuario2@vidrios.com
     └── malcaino@vidrios.com
