@@ -87,7 +87,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
 
   const handleFileSelection = async (file: File) => {
     if (!file.name.toLowerCase().endsWith('.svg')) {
-      setImportError('Por favor selecciona un archivo SVG válido');
+      setImportError('Por favor selecciona un archivo PDF válido');
       return;
     }
 
@@ -116,7 +116,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
         }
       }
     } catch (error) {
-      setImportError('Error al leer el archivo SVG');
+      setImportError('Error al leer el archivo PDF');
       console.error(error);
     }
   };
@@ -235,8 +235,8 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Importar Orden desde SVG</h2>
-            <p className="text-sm text-gray-600 mt-1">Carga un archivo SVG de orden de fabricación</p>
+            <h2 className="text-2xl font-bold text-gray-800">Importar Orden desde PDF</h2>
+            <p className="text-sm text-gray-600 mt-1">Carga un archivo PDF de orden de fabricación</p>
           </div>
           <button
             onClick={onClose}
@@ -261,7 +261,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
             >
               <Upload size={48} className="mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium text-gray-700 mb-2">
-                Arrastra un archivo SVG aquí
+                Arrastra un archivo PDF aquí
               </p>
               <p className="text-sm text-gray-500 mb-4">o</p>
               <button

@@ -236,7 +236,7 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
               >
                 <FileUp size={18} />
-                <span className="hidden sm:inline">Importar SVG</span>
+                <span className="hidden sm:inline">Importar PDF</span>
               </button>
               <button
                 onClick={() => setViewMode('summary')}
@@ -283,7 +283,7 @@ export function Dashboard({ onNavigateToOrders, onNavigateToCustomers, onEditOrd
                 className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg transition-colors"
               >
                 <FileUp size={18} />
-                <span className="hidden sm:inline">Importar SVG</span>
+                <span className="hidden sm:inline">Importar PDF</span>
               </button>
               <button
                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg"

@@ -133,7 +133,7 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
               className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white hover:bg-green-700 rounded-lg font-medium transition-colors"
             >
               <FileUp size={20} />
-              Importar SVG
+              Importar PDF
             </button>
             <button
               onClick={() => setShowCancelled(!showCancelled)}
