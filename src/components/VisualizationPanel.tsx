@@ -1,6 +1,7 @@
-import { PlacedCut, Sheet, CutLine, CutInstruction, Remnant } from '../types';
+import { PlacedCut, Sheet, CutLine, CutInstruction, Remnant, Order } from '../types';
 import { validateCutDimensions } from '../utils/validation';
-import { Scissors, Cog, Package } from 'lucide-react';
+import { Scissors, Cog, Package, FileDown } from 'lucide-react';
+import { generateCuttingDiagramPDF } from '../utils/generateCuttingDiagramPDF';
 
 interface VisualizationPanelProps {
   sheet: Sheet;
@@ -10,6 +11,8 @@ interface VisualizationPanelProps {
   cutInstructions?: CutInstruction[];
   method?: string;
   remnants?: Remnant[];
+  order?: Order;
+  customerName?: string;
 }
 
 const COLORS = [
@@ -17,7 +20,7 @@ const COLORS = [
   '#ec4899', '#14b8a6', '#f97316', '#6366f1', '#84cc16'
 ];
 
-export function VisualizationPanel({ sheet, placedCuts, utilization, cutLines = [], cutInstructions = [], method, remnants = [] }: VisualizationPanelProps) {
+export function VisualizationPanel({ sheet, placedCuts, utilization, cutLines = [], cutInstructions = [], method, remnants = [], order, customerName }: VisualizationPanelProps) {
   const padding = 40;
   const maxWidth = typeof window !== 'undefined' ? Math.min(800, window.innerWidth - 100) : 800;
   const maxHeight = 600;
@@ -41,30 +44,52 @@ export function VisualizationPanel({ sheet, placedCuts, utilization, cutLines = 
   const colorMap = new Map<string, string>();
   let colorIndex = 0;
 
+  const handleExportPDF = () => {
+    generateCuttingDiagramPDF({
+      sheet,
+      placedCuts,
+      utilization,
+      cutLines,
+      method,
+      remnants,
+      order,
+      customerName
+    });
+  };
+
   return (
     <div className="h-full overflow-y-auto bg-gray-50 p-4 sm:p-6">
       <div className="space-y-4 sm:space-y-6">
         <div>
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 gap-2">
             <h2 className="text-xl sm:text-2xl font-bold text-gray-800">Diagrama de Corte</h2>
-            <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm ${
-              sheet.cuttingMethod === 'manual'
-                ? 'bg-orange-100 text-orange-800 border border-orange-300'
-                : 'bg-green-100 text-green-800 border border-green-300'
-            }`}>
-              {sheet.cuttingMethod === 'manual' ? (
-                <>
-                  <Scissors size={16} />
-                  Manual (Toyo)
-                </>
-              ) : (
-                <>
-                  <Cog size={16} />
-                  Máquina
-                </>
-              )}
-              <span className="mx-1">•</span>
-              {sheet.glassThickness}mm
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleExportPDF}
+                className="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium text-sm transition-colors"
+              >
+                <FileDown size={16} />
+                Exportar PDF
+              </button>
+              <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg font-medium text-sm ${
+                sheet.cuttingMethod === 'manual'
+                  ? 'bg-orange-100 text-orange-800 border border-orange-300'
+                  : 'bg-green-100 text-green-800 border border-green-300'
+              }`}>
+                {sheet.cuttingMethod === 'manual' ? (
+                  <>
+                    <Scissors size={16} />
+                    Manual (Toyo)
+                  </>
+                ) : (
+                  <>
+                    <Cog size={16} />
+                    Máquina
+                  </>
+                )}
+                <span className="mx-1">•</span>
+                {sheet.glassThickness}mm
+              </div>
             </div>
           </div>
 
