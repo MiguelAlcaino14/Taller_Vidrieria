@@ -226,7 +226,7 @@ function AppContent() {
             <Scissors className="text-blue-600 flex-shrink-0" size={32} />
             <div>
               <h1 className="text-xl sm:text-2xl font-bold text-gray-800">
-                Sistema de Gestión de Vidriería
+                Gestión Vidriería
               </h1>
               <p className="text-xs sm:text-sm text-gray-600 hidden sm:block">
                 Gestión completa de clientes, pedidos y optimización de cortes
