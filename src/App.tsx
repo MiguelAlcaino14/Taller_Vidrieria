@@ -12,6 +12,7 @@ import InventoryManagement from './components/InventoryManagement';
 import AddSheetModal from './components/AddSheetModal';
 import MaterialAssignment from './components/MaterialAssignment';
 import CuttingExecution from './components/CuttingExecution';
+import { PDFViewerModal } from './components/PDFViewerModal';
 import { Cut, Sheet, Order, MaterialSheet } from './types';
 import { packCutsWithDetails } from './utils/packing';
 import { supabase } from './lib/supabase';
@@ -40,6 +41,9 @@ function AppContent() {
   const [materialAssignmentOrder, setMaterialAssignmentOrder] = useState<Order | null>(null);
   const [cuttingExecutionOrder, setCuttingExecutionOrder] = useState<Order | null>(null);
   const [refreshInventory, setRefreshInventory] = useState(0);
+  const [pdfViewerOpen, setPdfViewerOpen] = useState(false);
+  const [currentPdfUrl, setCurrentPdfUrl] = useState<string>('');
+  const [currentPdfOrderName, setCurrentPdfOrderName] = useState<string>('');
 
   const packingResult = packCutsWithDetails(cuts, sheet);
   const { placedCuts, utilization, cutLines, cutInstructions, method, remnants } = packingResult;
@@ -218,6 +222,12 @@ function AppContent() {
     setRefreshInventory(prev => prev + 1);
   };
 
+  const handleViewPDF = (pdfUrl: string, orderName: string) => {
+    setCurrentPdfUrl(pdfUrl);
+    setCurrentPdfOrderName(orderName);
+    setPdfViewerOpen(true);
+  };
+
   return (
     <div className="h-screen flex flex-col bg-gray-100">
       <header className="bg-white shadow-sm">
@@ -342,6 +352,7 @@ function AppContent() {
             onViewOrder={handleViewOrder}
             onAssignMaterial={handleAssignMaterial}
             onStartCutting={handleStartCutting}
+            onViewPDF={handleViewPDF}
           />
         ) : currentView === 'inventory' ? (
           <InventoryManagement
@@ -417,6 +428,13 @@ function AppContent() {
           onSuccess={handleCuttingExecutionSuccess}
         />
       )}
+
+      <PDFViewerModal
+        pdfUrl={currentPdfUrl}
+        orderName={currentPdfOrderName}
+        isOpen={pdfViewerOpen}
+        onClose={() => setPdfViewerOpen(false)}
+      />
     </div>
   );
 }

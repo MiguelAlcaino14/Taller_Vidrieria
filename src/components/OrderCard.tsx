@@ -1,5 +1,5 @@
 import { Order, OrderStatus, Customer, OrderWithMaterial, MaterialStatus } from '../types';
-import { Calendar, User, Package, DollarSign, Edit2, Eye, Clipboard, Scissors } from 'lucide-react';
+import { Calendar, User, Package, DollarSign, Edit2, Eye, Clipboard, Scissors, FileText } from 'lucide-react';
 
 interface OrderCardProps {
   order: Order | OrderWithMaterial;
@@ -9,6 +9,7 @@ interface OrderCardProps {
   onView: (order: Order) => void;
   onAssignMaterial: (order: Order) => void;
   onStartCutting: (order: Order) => void;
+  onViewPDF?: (pdfUrl: string, orderName: string) => void;
 }
 
 const statusColors: Record<OrderStatus, string> = {
@@ -43,7 +44,7 @@ const materialStatusLabels: Record<MaterialStatus, string> = {
   completed: 'Corte completo'
 };
 
-export function OrderCard({ order, customer, onStatusChange, onEdit, onView, onAssignMaterial, onStartCutting }: OrderCardProps) {
+export function OrderCard({ order, customer, onStatusChange, onEdit, onView, onAssignMaterial, onStartCutting, onViewPDF }: OrderCardProps) {
   const orderWithMaterial = order as OrderWithMaterial;
   const materialStatus = orderWithMaterial.material_status || 'pending';
   const formatCurrency = (amount: number) => {
@@ -110,6 +111,19 @@ export function OrderCard({ order, customer, onStatusChange, onEdit, onView, onA
           <Package size={14} className="text-gray-400" />
           <span>{order.cuts.length} corte{order.cuts.length !== 1 ? 's' : ''}</span>
         </div>
+
+        {order.svg_source_url && order.svg_source_url.endsWith('.pdf') && onViewPDF && (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onViewPDF(order.svg_source_url!, order.name);
+            }}
+            className="flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 mb-2 font-medium"
+          >
+            <FileText size={14} />
+            Ver PDF Original
+          </button>
+        )}
 
         {order.promised_date && (
           <div className="flex items-center gap-2 text-sm text-gray-600 mb-2">

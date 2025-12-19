@@ -12,6 +12,7 @@ interface OrderBoardProps {
   onViewOrder: (order: Order) => void;
   onAssignMaterial: (order: Order) => void;
   onStartCutting: (order: Order) => void;
+  onViewPDF?: (pdfUrl: string, orderName: string) => void;
 }
 
 const columns: { status: OrderStatus; label: string; color: string }[] = [
@@ -22,7 +23,7 @@ const columns: { status: OrderStatus; label: string; color: string }[] = [
   { status: 'delivered', label: 'Entregados', color: 'bg-emerald-100' }
 ];
 
-export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMaterial, onStartCutting }: OrderBoardProps) {
+export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMaterial, onStartCutting, onViewPDF }: OrderBoardProps) {
   const { profile } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Map<string, Customer>>(new Map());
@@ -193,6 +194,7 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
                           onView={onViewOrder}
                           onAssignMaterial={onAssignMaterial}
                           onStartCutting={onStartCutting}
+                          onViewPDF={onViewPDF}
                         />
                       ))}
                       {columnOrders.length === 0 && (
@@ -228,6 +230,7 @@ export function OrderBoard({ onNewOrder, onEditOrder, onViewOrder, onAssignMater
                         onView={onViewOrder}
                         onAssignMaterial={onAssignMaterial}
                         onStartCutting={onStartCutting}
+                        onViewPDF={onViewPDF}
                       />
                     ))}
                     {cancelledOrders.length === 0 && (

@@ -4,6 +4,7 @@ import { parsePDFOrder, validateParsedOrder } from '../utils/pdfOrderParser';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Customer, Cut } from '../types';
+import { PDFViewer } from './PDFViewer';
 
 interface SVGOrderImportModalProps {
   onClose: () => void;
@@ -231,11 +232,13 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+      <div className={`bg-white rounded-lg shadow-xl w-full ${parsedOrder ? 'max-w-7xl' : 'max-w-4xl'} max-h-[90vh] flex flex-col`}>
         <div className="flex items-center justify-between p-6 border-b">
           <div>
             <h2 className="text-2xl font-bold text-gray-800">Importar Orden</h2>
-            <p className="text-sm text-gray-600 mt-1">Carga un archivo PDF de orden de fabricación</p>
+            <p className="text-sm text-gray-600 mt-1">
+              {parsedOrder ? 'Revisa el documento y confirma la información' : 'Carga un archivo PDF de orden de fabricación'}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -245,64 +248,85 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
+        <div className="flex-1 overflow-hidden flex">
           {!parsedOrder ? (
-            <div
-              onDragEnter={handleDragEnter}
-              onDragOver={handleDragOver}
-              onDragLeave={handleDragLeave}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors ${
-                isDragging
-                  ? 'border-blue-500 bg-blue-50'
-                  : 'border-gray-300 hover:border-gray-400'
-              }`}
-            >
-              <Upload size={48} className="mx-auto text-gray-400 mb-4" />
-              <p className="text-lg font-medium text-gray-700 mb-2">
-                Arrastra un archivo PDF aquí
-              </p>
-              <p className="text-sm text-gray-500 mb-4">o</p>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            <div className="flex-1 p-6">
+              <div
+                onDragEnter={handleDragEnter}
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                className={`border-2 border-dashed rounded-lg p-12 text-center transition-colors h-full flex flex-col items-center justify-center ${
+                  isDragging
+                    ? 'border-blue-500 bg-blue-50'
+                    : 'border-gray-300 hover:border-gray-400'
+                }`}
               >
-                Seleccionar Archivo
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".pdf"
-                onChange={handleFileInputChange}
-                className="hidden"
-              />
+                <Upload size={48} className="mx-auto text-gray-400 mb-4" />
+                <p className="text-lg font-medium text-gray-700 mb-2">
+                  Arrastra un archivo PDF aquí
+                </p>
+                <p className="text-sm text-gray-500 mb-4">o</p>
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                >
+                  Seleccionar Archivo
+                </button>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept=".pdf"
+                  onChange={handleFileInputChange}
+                  className="hidden"
+                />
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              {validationErrors.length > 0 && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <div className="flex items-start gap-3">
-                    <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
-                    <div>
-                      <p className="font-medium text-red-800 mb-2">Errores de validación:</p>
-                      <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
-                        {validationErrors.map((error, i) => (
-                          <li key={i}>{error}</li>
-                        ))}
-                      </ul>
+            <>
+              <div className="w-2/5 border-r p-6 overflow-hidden flex flex-col">
+                <div className="mb-4">
+                  <h3 className="font-semibold text-gray-800 flex items-center gap-2 mb-2">
+                    <FileText size={20} />
+                    Documento Original
+                  </h3>
+                  <div className="flex items-center gap-2 px-3 py-2 bg-green-50 border border-green-200 rounded-lg">
+                    <CheckCircle2 className="text-green-600" size={16} />
+                    <span className="text-sm text-green-800 font-medium">PDF Cargado</span>
+                  </div>
+                </div>
+                {selectedFile && (
+                  <div className="flex-1 overflow-hidden">
+                    <PDFViewer file={selectedFile} className="h-full" />
+                  </div>
+                )}
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {validationErrors.length > 0 && (
+                  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                    <div className="flex items-start gap-3">
+                      <AlertCircle className="text-red-600 flex-shrink-0 mt-0.5" size={20} />
+                      <div>
+                        <p className="font-medium text-red-800 mb-2">Errores de validación:</p>
+                        <ul className="list-disc list-inside space-y-1 text-sm text-red-700">
+                          {validationErrors.map((error, i) => (
+                            <li key={i}>{error}</li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {validationErrors.length === 0 && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <div className="flex items-center gap-3">
-                    <CheckCircle2 className="text-green-600" size={20} />
-                    <p className="font-medium text-green-800">Archivo procesado correctamente</p>
+                {validationErrors.length === 0 && (
+                  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle2 className="text-green-600" size={20} />
+                      <p className="font-medium text-green-800">Información validada correctamente</p>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
               <div className="bg-gray-50 rounded-lg p-6 space-y-4">
                 <h3 className="font-semibold text-gray-800 flex items-center gap-2">
@@ -429,16 +453,17 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
                   ))}
                 </div>
               </div>
-            </div>
-          )}
 
-          {importError && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <div className="flex items-center gap-3">
-                <AlertCircle className="text-red-600" size={20} />
-                <p className="text-red-800">{importError}</p>
-              </div>
+              {importError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <div className="flex items-center gap-3">
+                    <AlertCircle className="text-red-600" size={20} />
+                    <p className="text-red-800">{importError}</p>
+                  </div>
+                </div>
+              )}
             </div>
+            </>
           )}
         </div>
 
@@ -468,9 +493,9 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
             <button
               onClick={handleImport}
               disabled={!canImport || isImporting}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed font-medium"
             >
-              {isImporting ? 'Importando...' : 'Importar Pedido'}
+              {isImporting ? 'Guardando...' : 'Confirmar y Guardar Pedido'}
             </button>
           )}
         </div>
