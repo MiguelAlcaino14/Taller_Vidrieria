@@ -353,6 +353,36 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
                 </div>
               </div>
 
+              <div className="bg-blue-50 rounded-lg p-6 space-y-4 border border-blue-200">
+                <h3 className="font-semibold text-gray-800 flex items-center gap-2">
+                  <Ruler size={20} />
+                  Descripción
+                </h3>
+                <div className="space-y-3">
+                  {parsedOrder.pieces.map((piece, index) => (
+                    <div key={index} className="bg-white rounded-lg p-4 border border-gray-300">
+                      <p className="font-medium text-gray-800 mb-3">{piece.label}</p>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <p className="text-gray-600 font-medium mb-1">Tipo</p>
+                          <p className="text-gray-800">
+                            {piece.isMirror ? 'Espejo' : 'Vidrio'}
+                          </p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600 font-medium mb-1">Grosor</p>
+                          <p className="text-gray-800">{piece.thickness} mm</p>
+                        </div>
+                        <div>
+                          <p className="text-gray-600 font-medium mb-1">Medidas</p>
+                          <p className="text-gray-800">{piece.width} × {piece.height} cm</p>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <User size={20} />
@@ -425,32 +455,21 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
               <div className="bg-gray-50 rounded-lg p-6">
                 <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-2">
                   <Package size={20} />
-                  Piezas a Importar ({parsedOrder.pieces.length})
+                  Resumen
                 </h3>
-                <div className="space-y-3 max-h-64 overflow-y-auto">
-                  {parsedOrder.pieces.map((piece, index) => (
-                    <div key={index} className="bg-white rounded-lg p-4 border border-gray-200">
-                      <div className="flex items-start justify-between mb-2">
-                        <p className="font-medium text-gray-800">{piece.label}</p>
-                        <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded">
-                          {piece.materialType === 'glass' ? 'Vidrio' : piece.materialType === 'mirror' ? 'Espejo' : 'Aluminio'}
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-3 gap-2 text-sm">
-                        <div>
-                          <Ruler size={14} className="inline mr-1 text-gray-500" />
-                          <span className="text-gray-600">{piece.width} × {piece.height} cm</span>
-                        </div>
-                        <div>
-                          <Hash size={14} className="inline mr-1 text-gray-500" />
-                          <span className="text-gray-600">Cantidad: {piece.quantity}</span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600">Espesor: {piece.thickness}mm</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <p className="text-2xl font-bold text-gray-800">{parsedOrder.pieces.length}</p>
+                    <p className="text-sm text-gray-600 mt-1">Tipos de piezas</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <p className="text-2xl font-bold text-gray-800">{parsedOrder.totalPieces}</p>
+                    <p className="text-sm text-gray-600 mt-1">Piezas totales</p>
+                  </div>
+                  <div className="bg-white rounded-lg p-4 border border-gray-200">
+                    <p className="text-2xl font-bold text-gray-800">{parsedOrder.totalArea.toFixed(2)} m²</p>
+                    <p className="text-sm text-gray-600 mt-1">Área total</p>
+                  </div>
                 </div>
               </div>
 
