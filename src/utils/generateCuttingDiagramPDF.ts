@@ -104,13 +104,10 @@ export function generateCuttingDiagramPDF(options: PDFGenerationOptions): void {
   doc.setFontSize(8);
   doc.setFont('helvetica', 'bold');
   doc.text(`${sheet.width} cm`, diagramX + diagramWidth / 2, diagramY - 3, { align: 'center' });
-
-  doc.save();
   doc.text(`${sheet.height} cm`, diagramX - 3, diagramY + diagramHeight / 2, {
     angle: 90,
     align: 'center'
   });
-  doc.restore();
 
   const colorMap = new Map<string, typeof COLORS[0]>();
   let colorIndex = 0;
