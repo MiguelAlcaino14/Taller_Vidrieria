@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { X, Upload, FileText, AlertCircle, CheckCircle2, User, Phone, Package, Ruler, Hash } from 'lucide-react';
-import { parseSVGOrder, validateParsedOrder } from '../utils/svgOrderParser';
+import { parseSVGOrder, validateParsedOrder as validateSVGOrder } from '../utils/svgOrderParser';
+import { parsePDFOrder, validateParsedOrder as validatePDFOrder } from '../utils/pdfOrderParser';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../contexts/AuthContext';
 import { Customer, Cut } from '../types';
@@ -86,8 +87,12 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
   };
 
   const handleFileSelection = async (file: File) => {
-    if (!file.name.toLowerCase().endsWith('.svg')) {
-      setImportError('Por favor selecciona un archivo PDF válido');
+    const fileName = file.name.toLowerCase();
+    const isPDF = fileName.endsWith('.pdf');
+    const isSVG = fileName.endsWith('.svg');
+
+    if (!isPDF && !isSVG) {
+      setImportError('Por favor selecciona un archivo PDF o SVG válido');
       return;
     }
 
@@ -95,14 +100,22 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
     setImportError('');
 
     try {
-      const content = await file.text();
-      setSvgContent(content);
+      let parsed: ParsedOrder | null = null;
+      let content = '';
 
-      const parsed = parseSVGOrder(content);
+      if (isPDF) {
+        parsed = await parsePDFOrder(file);
+        const validation = validatePDFOrder(parsed);
+        setValidationErrors(validation.errors);
+      } else {
+        content = await file.text();
+        setSvgContent(content);
+        parsed = parseSVGOrder(content);
+        const validation = validateSVGOrder(parsed);
+        setValidationErrors(validation.errors);
+      }
+
       setParsedOrder(parsed);
-
-      const validation = validateParsedOrder(parsed);
-      setValidationErrors(validation.errors);
 
       if (parsed && parsed.customerName) {
         const matchingCustomer = customers.find(
@@ -116,7 +129,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
         }
       }
     } catch (error) {
-      setImportError('Error al leer el archivo PDF');
+      setImportError('Error al leer el archivo');
       console.error(error);
     }
   };
@@ -150,14 +163,16 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
       }
 
       let svgUrl = '';
-      if (selectedFile && svgContent) {
+      if (selectedFile) {
         const timestamp = Date.now();
-        const fileName = `${profile.id}/${timestamp}_${parsedOrder.orderCode}.svg`;
+        const fileExtension = selectedFile.name.toLowerCase().endsWith('.pdf') ? 'pdf' : 'svg';
+        const fileName = `${profile.id}/${timestamp}_${parsedOrder.orderCode}.${fileExtension}`;
+        const contentType = fileExtension === 'pdf' ? 'application/pdf' : 'image/svg+xml';
 
         const { error: uploadError } = await supabase.storage
           .from('order_documents')
           .upload(fileName, selectedFile, {
-            contentType: 'image/svg+xml',
+            contentType,
             upsert: false
           });
 
@@ -235,8 +250,8 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
         <div className="flex items-center justify-between p-6 border-b">
           <div>
-            <h2 className="text-2xl font-bold text-gray-800">Importar Orden desde PDF</h2>
-            <p className="text-sm text-gray-600 mt-1">Carga un archivo PDF de orden de fabricación</p>
+            <h2 className="text-2xl font-bold text-gray-800">Importar Orden</h2>
+            <p className="text-sm text-gray-600 mt-1">Carga un archivo PDF o SVG de orden de fabricación</p>
           </div>
           <button
             onClick={onClose}
@@ -261,7 +276,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
             >
               <Upload size={48} className="mx-auto text-gray-400 mb-4" />
               <p className="text-lg font-medium text-gray-700 mb-2">
-                Arrastra un archivo PDF aquí
+                Arrastra un archivo PDF o SVG aquí
               </p>
               <p className="text-sm text-gray-500 mb-4">o</p>
               <button
@@ -273,7 +288,7 @@ export function SVGOrderImportModal({ onClose, onImportSuccess, customers }: SVG
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".svg"
+                accept=".pdf,.svg"
                 onChange={handleFileInputChange}
                 className="hidden"
               />
