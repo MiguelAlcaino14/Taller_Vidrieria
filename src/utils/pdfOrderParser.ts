@@ -1,8 +1,4 @@
-import * as pdfjsLib from 'pdfjs-dist';
-
-if (typeof window !== 'undefined') {
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
-}
+import { pdfjsLib } from '../lib/pdfConfig';
 
 interface ParsedPiece {
   code: string;
