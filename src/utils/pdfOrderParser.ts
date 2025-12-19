@@ -53,7 +53,7 @@ function parseOrderFromText(text: string): ParsedOrder | null {
     const orderNumberMatch = text.match(/Pedido:\s*#?([a-f0-9]+)/i);
     const dateMatch = text.match(/Fecha:\s*([^\n]+)/i);
     const customerNameMatch = text.match(/Cliente:\s*([^\n]+?)(?:\s+Teléfono:|$)/i);
-    const customerPhoneMatch = text.match(/Teléfono:\s*([^\n]+)/i);
+    const customerPhoneMatch = text.match(/Teléfono:\s*([\d\s\-\+\(\)]+?)(?:\s+(?:Pedido|Orden|CR-|RESUMEN|#)|$)/i);
 
     if (!orderCodeMatch || !orderNumberMatch) {
       throw new Error('Could not extract order code or number from PDF');
