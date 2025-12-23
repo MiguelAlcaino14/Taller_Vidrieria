@@ -31,6 +31,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchProfile = async (userId: string) => {
     try {
@@ -57,30 +58,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      (async () => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        }
+    try {
+      supabase.auth.getSession().then(({ data: { session } }) => {
+        (async () => {
+          try {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+              await fetchProfile(session.user.id);
+            }
+            setLoading(false);
+          } catch (err) {
+            console.error('Error in getSession callback:', err);
+            setError(err instanceof Error ? err.message : 'Unknown error');
+            setLoading(false);
+          }
+        })();
+      }).catch((err) => {
+        console.error('Error getting session:', err);
+        setError(err instanceof Error ? err.message : 'Unknown error');
         setLoading(false);
-      })();
-    });
+      });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      (async () => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        if (session?.user) {
-          await fetchProfile(session.user.id);
-        } else {
-          setProfile(null);
-        }
-      })();
-    });
+      const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+        (async () => {
+          try {
+            setSession(session);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+              await fetchProfile(session.user.id);
+            } else {
+              setProfile(null);
+            }
+          } catch (err) {
+            console.error('Error in auth state change:', err);
+          }
+        })();
+      });
 
-    return () => subscription.unsubscribe();
+      return () => subscription.unsubscribe();
+    } catch (err) {
+      console.error('Error in useEffect:', err);
+      setError(err instanceof Error ? err.message : 'Unknown error');
+      setLoading(false);
+    }
   }, []);
 
   const signIn = async (email: string, password: string) => {
@@ -122,6 +143,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut,
     refreshProfile,
   };
+
+  if (error) {
+    return (
+      <div style={{ padding: '20px', backgroundColor: '#fee', color: '#c00' }}>
+        <h2>Error de Inicialización</h2>
+        <p>{error}</p>
+        <p>Por favor verifica la configuración de Supabase.</p>
+      </div>
+    );
+  }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }

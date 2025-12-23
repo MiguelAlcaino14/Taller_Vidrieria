@@ -439,4 +439,8 @@ function AppContent() {
   );
 }
 
-export default AppContent;
+function App() {
+  return <AppContent />;
+}
+
+export default App;
