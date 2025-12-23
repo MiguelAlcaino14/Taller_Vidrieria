@@ -6,7 +6,7 @@ Este documento contiene las credenciales de 4 usuarios de prueba con diferentes 
 
 ### 1. Usuario Administrador
 - **Email:** admin@vidrios.com
-- **Contraseña:** Admin123!
+- **Contraseña:** Admin123
 - **Rol:** Administrador
 - **Permisos:**
   - Acceso completo al sistema
@@ -18,7 +18,7 @@ Este documento contiene las credenciales de 4 usuarios de prueba con diferentes 
 
 ### 2. Operador #1
 - **Email:** usuario1@vidrios.com
-- **Contraseña:** Usuario123!
+- **Contraseña:** Usuario123
 - **Rol:** Operador
 - **Permisos:**
   - Ve TODOS los pedidos del sistema (para poder trabajar en cualquiera)
@@ -31,8 +31,8 @@ Este documento contiene las credenciales de 4 usuarios de prueba con diferentes 
 
 ### 3. Operador #2
 - **Email:** usuario2@vidrios.com
-- **Contraseña:** Usuario123!
-- **Rol:** Operador
+- **Contraseña:** Usuario123
+- **Rol:** Operador (No creado aún)
 - **Permisos:**
   - Mismos permisos que el Operador #1
   - Ve todos los pedidos del taller
@@ -40,7 +40,7 @@ Este documento contiene las credenciales de 4 usuarios de prueba con diferentes 
 
 ### 4. Miguel Alcaino (Operador)
 - **Email:** malcaino@vidrios.com
-- **Contraseña:** Miguel123!
+- **Contraseña:** Miguel123
 - **Rol:** Operador
 - **Permisos:**
   - Mismos permisos que los operadores arriba
