@@ -70,6 +70,19 @@ npm run typecheck  # Verifica tipos de TypeScript
 
 ## Despliegue a Producción
 
+### Configuración de Variables de Entorno en Netlify
+
+**IMPORTANTE:** Si ves una página en blanco después del despliegue, necesitas configurar las variables de entorno.
+
+1. Ve a tu sitio en Netlify
+2. Navega a: **Site settings** > **Environment variables**
+3. Agrega las siguientes variables:
+   - `VITE_SUPABASE_URL` = `https://qydplrdlzfskkogosewa.supabase.co`
+   - `VITE_SUPABASE_ANON_KEY` = `[copia la clave del archivo .env local]`
+4. Guarda los cambios
+5. Ve a **Deploys** y haz clic en **Trigger deploy** > **Deploy site**
+6. Espera a que se complete el nuevo despliegue
+
 ### Guía Rápida
 Ver [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) para una guía rápida de 30 minutos.
 
