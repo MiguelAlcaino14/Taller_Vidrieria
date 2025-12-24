@@ -2,7 +2,7 @@ import { User, LogOut, Crown } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 
 export function UserProfilePanel() {
-  const { profile, signOut } = useAuth();
+  const { user, signOut } = useAuth();
 
   const handleSignOut = async () => {
     try {
@@ -34,22 +34,22 @@ export function UserProfilePanel() {
     }
   };
 
-  if (!profile) return null;
+  if (!user) return null;
 
   return (
     <div className="bg-white border-b border-gray-200 px-6 py-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-lg">
-            {getRoleIcon(profile.role)}
+            {getRoleIcon(user.role)}
             <span className="text-sm font-medium text-gray-700">
-              {getRoleLabel(profile.role)}
+              {getRoleLabel(user.role)}
             </span>
           </div>
 
           <div>
-            <p className="text-sm font-semibold text-gray-800">{profile.full_name}</p>
-            <p className="text-xs text-gray-600">{profile.email}</p>
+            <p className="text-sm font-semibold text-gray-800">{user.full_name}</p>
+            <p className="text-xs text-gray-600">{user.email}</p>
           </div>
         </div>
 

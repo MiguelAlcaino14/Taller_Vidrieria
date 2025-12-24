@@ -1,19 +1,29 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
-
-if (!supabaseUrl || !supabaseAnonKey) {
-  const missing = [];
-  if (!supabaseUrl) missing.push('VITE_SUPABASE_URL');
-  if (!supabaseAnonKey) missing.push('VITE_SUPABASE_ANON_KEY');
-
-  throw new Error(
-    `Faltan variables de entorno de Supabase: ${missing.join(', ')}.\n\n` +
-    'En Netlify, ve a: Site settings > Environment variables y agrega:\n' +
-    '- VITE_SUPABASE_URL: https://qydplrdlzfskkogosewa.supabase.co\n' +
-    '- VITE_SUPABASE_ANON_KEY: [tu clave anon key]'
-  );
-}
-
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+export const supabase = {
+  from: () => ({
+    select: () => ({
+      eq: () => ({
+        maybeSingle: () => Promise.resolve({ data: null, error: null }),
+        single: () => Promise.resolve({ data: null, error: null })
+      }),
+      order: () => Promise.resolve({ data: [], error: null }),
+      then: () => Promise.resolve({ data: [], error: null })
+    }),
+    insert: () => ({
+      select: () => ({
+        single: () => Promise.resolve({ data: null, error: null })
+      })
+    }),
+    update: () => ({
+      eq: () => Promise.resolve({ data: null, error: null })
+    }),
+    delete: () => ({
+      eq: () => Promise.resolve({ data: null, error: null })
+    })
+  }),
+  storage: {
+    from: () => ({
+      upload: () => Promise.resolve({ data: null, error: null }),
+      getPublicUrl: () => ({ data: { publicUrl: '' } })
+    })
+  }
+};

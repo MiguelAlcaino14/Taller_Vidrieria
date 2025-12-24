@@ -15,13 +15,13 @@ import CuttingExecution from './components/CuttingExecution';
 import { PDFViewerModal } from './components/PDFViewerModal';
 import { Cut, Sheet, Order, MaterialSheet } from './types';
 import { packCutsWithDetails } from './utils/packing';
-import { supabase } from './lib/supabase';
+import { api } from './lib/api';
 import { useAuth } from './contexts/AuthContext';
 
 type View = 'dashboard' | 'customers' | 'orders' | 'optimizer' | 'inventory';
 
 function AppContent() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [currentView, setCurrentView] = useState<View>('dashboard');
   const [sheet, setSheet] = useState<Sheet>({
     width: 200,
@@ -63,7 +63,7 @@ function AppContent() {
   };
 
   const handleSave = async (name: string) => {
-    if (!profile) {
+    if (!user) {
       alert('Debes iniciar sesión para guardar proyectos');
       setAuthModalOpen(true);
       return;
@@ -72,7 +72,9 @@ function AppContent() {
     try {
       const projectData = {
         name,
-        user_id: profile.id,
+        customer_id: null,
+        order_number: `ORD-${Date.now()}`,
+        status: 'pending',
         sheet_width: sheet.width,
         sheet_height: sheet.height,
         cut_thickness: sheet.cutThickness,
@@ -83,25 +85,14 @@ function AppContent() {
           height: c.height,
           quantity: c.quantity,
           label: c.label
-        })),
-        updated_at: new Date().toISOString()
+        }))
       };
 
       if (currentProjectId) {
-        const { error } = await supabase
-          .from('glass_projects')
-          .update(projectData)
-          .eq('id', currentProjectId);
-
-        if (error) throw error;
+        const data = await api.put<Order>(`/api/orders/${currentProjectId}`, projectData);
+        setCurrentProjectId(data.id);
       } else {
-        const { data, error } = await supabase
-          .from('glass_projects')
-          .insert([projectData])
-          .select()
-          .single();
-
-        if (error) throw error;
+        const data = await api.post<Order>('/api/orders', projectData);
         setCurrentProjectId(data.id);
       }
 
@@ -114,13 +105,8 @@ function AppContent() {
 
   const handleLoad = async (projectId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('glass_projects')
-        .select('*')
-        .eq('id', projectId)
-        .maybeSingle();
+      const data = await api.get<Order>(`/api/orders/${projectId}`);
 
-      if (error) throw error;
       if (!data) return;
 
       setSheet({
@@ -152,7 +138,7 @@ function AppContent() {
   };
 
   const openLoadModal = () => {
-    if (!profile) {
+    if (!user) {
       alert('Debes iniciar sesión para cargar proyectos');
       setAuthModalOpen(true);
       return;
@@ -243,7 +229,7 @@ function AppContent() {
               </p>
             </div>
           </div>
-          {!profile && (
+          {!user && (
             <button
               onClick={() => setAuthModalOpen(true)}
               className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors text-sm"
@@ -254,9 +240,9 @@ function AppContent() {
             </button>
           )}
         </div>
-        {profile && <UserProfilePanel />}
+        {user && <UserProfilePanel />}
 
-        {profile && (
+        {user && (
           <div className="grid grid-cols-2 sm:flex border-b">
             <button
               onClick={() => setCurrentView('dashboard')}
@@ -318,7 +304,7 @@ function AppContent() {
       </header>
 
       <div className="flex-1 overflow-hidden">
-        {!profile ? (
+        {!user ? (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <Scissors className="mx-auto text-gray-300 mb-4" size={64} />

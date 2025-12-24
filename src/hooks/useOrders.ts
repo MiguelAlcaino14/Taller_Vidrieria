@@ -1,17 +1,17 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Order, Customer } from '../types';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
 export function useOrders() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [orders, setOrders] = useState<Order[]>([]);
   const [customers, setCustomers] = useState<Map<string, Customer>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
   const loadData = useCallback(async () => {
-    if (!profile) {
+    if (!user) {
       setOrders([]);
       setCustomers(new Map());
       setLoading(false);
@@ -22,27 +22,21 @@ export function useOrders() {
       setLoading(true);
       setError(null);
 
-      const [ordersResult, customersResult] = await Promise.all([
-        supabase
-          .from('glass_projects')
-          .select('*')
-          .order('created_at', { ascending: false }),
-        supabase.from('customers').select('*')
+      const [ordersData, customersData] = await Promise.all([
+        api.get<Order[]>('/api/orders'),
+        api.get<Customer[]>('/api/customers')
       ]);
 
-      if (ordersResult.error) throw ordersResult.error;
-      if (customersResult.error) throw customersResult.error;
-
-      const ordersData = (ordersResult.data || []).map((order) => ({
+      const ordersWithCuts = ordersData.map((order) => ({
         ...order,
         cuts: order.cuts || []
-      })) as Order[];
+      }));
 
-      setOrders(ordersData);
+      setOrders(ordersWithCuts);
 
       const customersMap = new Map<string, Customer>();
-      (customersResult.data || []).forEach((customer) => {
-        customersMap.set(customer.id, customer as Customer);
+      customersData.forEach((customer) => {
+        customersMap.set(customer.id, customer);
       });
       setCustomers(customersMap);
     } catch (err) {
@@ -51,7 +45,7 @@ export function useOrders() {
     } finally {
       setLoading(false);
     }
-  }, [profile]);
+  }, [user]);
 
   useEffect(() => {
     loadData();
