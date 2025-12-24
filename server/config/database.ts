@@ -14,16 +14,30 @@ const pool = new Pool({
   } : false,
   max: 20,
   idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 2000,
+  connectionTimeoutMillis: 10000,
 });
 
 pool.on('connect', () => {
-  console.log('Connected to PostgreSQL database with SSL');
+  console.log('✅ Connected to PostgreSQL database');
+  console.log(`   Database: ${process.env.DB_NAME}`);
+  console.log(`   Host: ${process.env.DB_HOST}:${process.env.DB_PORT}`);
+  console.log(`   SSL: ${process.env.DB_SSL === 'true' ? 'Enabled' : 'Disabled'}`);
 });
 
 pool.on('error', (err) => {
-  console.error('Unexpected error on idle client', err);
-  process.exit(-1);
+  console.error('❌ Unexpected error on idle PostgreSQL client:');
+  console.error('   Error:', err.message);
+
+  if (err.message.includes('ECONNREFUSED')) {
+    console.error('\n🔧 Connection was refused by the server.');
+    console.error('   This usually means the server is down or firewall is blocking.');
+    console.error('   Run: npm run test:db for detailed diagnostics');
+  } else if (err.message.includes('timeout')) {
+    console.error('\n🔧 Connection timeout.');
+    console.error('   The server is not responding. Check network connectivity.');
+  }
+
+  console.error('\n📖 See CONFIGURAR_POSTGRESQL.md for troubleshooting steps\n');
 });
 
 export default pool;
