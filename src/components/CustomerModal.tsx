@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { X, User, Building2 } from 'lucide-react';
 import { Customer, CustomerType } from '../types';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
 interface CustomerModalProps {
@@ -12,7 +12,7 @@ interface CustomerModalProps {
 }
 
 export function CustomerModal({ isOpen, customer, onClose, onSave }: CustomerModalProps) {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
@@ -43,7 +43,7 @@ export function CustomerModal({ isOpen, customer, onClose, onSave }: CustomerMod
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!profile) {
+    if (!user) {
       setError('Debes iniciar sesión');
       return;
     }
@@ -58,29 +58,19 @@ export function CustomerModal({ isOpen, customer, onClose, onSave }: CustomerMod
 
     try {
       const customerData = {
-        user_id: profile.id,
         name: name.trim(),
         phone: phone.trim(),
         email: email.trim(),
         address: address.trim(),
+        contact_name: customerType === 'company' ? name.trim() : undefined,
         customer_type: customerType,
-        notes: notes.trim(),
-        updated_at: new Date().toISOString()
+        notes: notes.trim()
       };
 
       if (customer) {
-        const { error } = await supabase
-          .from('customers')
-          .update(customerData)
-          .eq('id', customer.id);
-
-        if (error) throw error;
+        await api.put(`/api/customers/${customer.id}`, customerData);
       } else {
-        const { error } = await supabase
-          .from('customers')
-          .insert([customerData]);
-
-        if (error) throw error;
+        await api.post('/api/customers', customerData);
       }
 
       onSave();

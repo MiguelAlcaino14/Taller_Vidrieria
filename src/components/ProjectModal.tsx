@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Trash2 } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 
 interface ProjectModalProps {
@@ -21,7 +21,7 @@ interface SavedProject {
 }
 
 export function ProjectModal({ isOpen, mode, onClose, onSave, onLoad }: ProjectModalProps) {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [projectName, setProjectName] = useState('');
   const [projects, setProjects] = useState<SavedProject[]>([]);
   const [loading, setLoading] = useState(false);
@@ -33,16 +33,11 @@ export function ProjectModal({ isOpen, mode, onClose, onSave, onLoad }: ProjectM
   }, [isOpen, mode]);
 
   const loadProjects = async () => {
-    if (!profile) return;
+    if (!user) return;
 
     setLoading(true);
     try {
-      const { data, error } = await supabase
-        .from('glass_projects')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await api.get<SavedProject[]>('/api/orders');
       setProjects(data || []);
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -55,12 +50,7 @@ export function ProjectModal({ isOpen, mode, onClose, onSave, onLoad }: ProjectM
     if (!confirm('¿Estás seguro de eliminar este proyecto?')) return;
 
     try {
-      const { error } = await supabase
-        .from('glass_projects')
-        .delete()
-        .eq('id', id);
-
-      if (error) throw error;
+      await api.delete(`/api/orders/${id}`);
       setProjects(projects.filter(p => p.id !== id));
     } catch (error) {
       console.error('Error deleting project:', error);

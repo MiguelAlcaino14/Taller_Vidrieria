@@ -8,117 +8,165 @@ Sistema completo para talleres de vidrieria que permite gestionar órdenes, opti
 - Optimización de cortes de vidrio con múltiples algoritmos
 - Control de inventario de materiales (placas y láminas)
 - Gestión de clientes
-- Importación de diseños desde archivos SVG
+- Importación de diseños desde archivos SVG y PDF
 - Sistema de roles (Administrador/Operador)
 - Seguimiento de desperdicios y aprovechamiento de materiales
 - Visualización en tiempo real del proceso de corte
+- Generación de PDF con diagramas de corte
 
 ## Stack Tecnológico
 
-- **Frontend:** React 18 + TypeScript + Vite
-- **UI:** Tailwind CSS + Lucide React Icons
-- **Base de Datos:** Supabase (PostgreSQL)
-- **Autenticación:** Supabase Auth
-- **Storage:** Supabase Storage
-- **Despliegue:** Netlify
+### Frontend
+- React 18 + TypeScript + Vite
+- Tailwind CSS + Lucide React Icons
+- jsPDF para generación de PDFs
+- PDF.js para lectura de PDFs
+
+### Backend
+- Node.js + Express + TypeScript
+- PostgreSQL con SSL
+- Autenticación JWT (bcryptjs)
+- CORS habilitado
+
+### Base de Datos
+- PostgreSQL 14+
+- Conexiones SSL seguras
+- Sistema de roles integrado
 
 ## Requisitos Previos
 
 - Node.js 18 o superior
 - npm o yarn
-- Cuenta de Supabase
-- Cuenta de Netlify (solo para producción)
+- PostgreSQL 14 o superior
+- Acceso a servidor PostgreSQL (local o remoto)
 
 ## Instalación Local
 
-1. Clonar el repositorio:
+### 1. Clonar el repositorio
+
 ```bash
 git clone <tu-repositorio>
 cd taller-vidrieria
 ```
 
-2. Instalar dependencias:
+### 2. Instalar dependencias
+
 ```bash
 npm install
 ```
 
-3. Configurar variables de entorno:
+### 3. Configurar variables de entorno
+
 ```bash
 cp .env.example .env
 ```
 
-4. Editar `.env` con tus credenciales de Supabase:
-```bash
-VITE_SUPABASE_URL=tu-url-de-supabase
-VITE_SUPABASE_ANON_KEY=tu-anon-key
+Editar `.env` con tus credenciales:
+
+```env
+DB_HOST=tu-servidor-postgresql
+DB_PORT=5432
+DB_USER=tu-usuario
+DB_PASSWORD=tu-contraseña
+DB_NAME=VidrieriaTaller
+DB_SSL=true
+
+JWT_SECRET=tu-secreto-jwt-aqui
+JWT_EXPIRES_IN=7d
+
+VITE_API_URL=http://localhost:3001
 ```
 
-5. Iniciar servidor de desarrollo:
+### 4. Configurar PostgreSQL
+
+Sigue la guía en `CONFIGURAR_POSTGRESQL.md` para:
+- Habilitar conexiones remotas
+- Configurar SSL
+- Abrir puerto 5432 en firewall
+
+### 5. Ejecutar migración de base de datos
+
+```bash
+npm run migrate
+```
+
+Esto creará todas las tablas y usuarios por defecto:
+- **Admin**: admin@vidrieriataller.com / admin123
+- **Operador**: operador@vidrieriataller.com / operator123
+
+### 6. Iniciar servidores
+
+Terminal 1 - Backend:
+```bash
+npm run dev:server
+```
+
+Terminal 2 - Frontend:
 ```bash
 npm run dev
 ```
 
+La aplicación estará disponible en:
+- Frontend: http://localhost:5173
+- Backend API: http://localhost:3001
+
 ## Scripts Disponibles
 
 ```bash
-npm run dev        # Inicia servidor de desarrollo
-npm run build      # Construye para producción
-npm run preview    # Vista previa del build de producción
-npm run lint       # Ejecuta ESLint
-npm run typecheck  # Verifica tipos de TypeScript
+npm run dev          # Inicia servidor frontend
+npm run dev:server   # Inicia servidor backend
+npm run migrate      # Ejecuta migraciones de BD
+npm run test:db      # Prueba conexión a PostgreSQL
+npm run build        # Construye frontend para producción
+npm run build:server # Construye backend para producción
+npm run start        # Inicia servidor de producción
+npm run lint         # Ejecuta ESLint
+npm run typecheck    # Verifica tipos de TypeScript
 ```
-
-## Despliegue a Producción
-
-### Configuración de Variables de Entorno en Netlify
-
-**IMPORTANTE:** Si ves una página en blanco después del despliegue, necesitas configurar las variables de entorno.
-
-1. Ve a tu sitio en Netlify
-2. Navega a: **Site settings** > **Environment variables**
-3. Agrega las siguientes variables:
-   - `VITE_SUPABASE_URL` = `https://qydplrdlzfskkogosewa.supabase.co`
-   - `VITE_SUPABASE_ANON_KEY` = `[copia la clave del archivo .env local]`
-4. Guarda los cambios
-5. Ve a **Deploys** y haz clic en **Trigger deploy** > **Deploy site**
-6. Espera a que se complete el nuevo despliegue
-
-### Guía Rápida
-Ver [PRODUCTION_SETUP.md](./PRODUCTION_SETUP.md) para una guía rápida de 30 minutos.
-
-### Guía Completa
-Ver [DEPLOYMENT.md](./DEPLOYMENT.md) para instrucciones detalladas y solución de problemas.
 
 ## Estructura del Proyecto
 
 ```
 taller-vidrieria/
-├── src/
-│   ├── components/          # Componentes React
+├── server/                    # Backend Express
+│   ├── config/
+│   │   └── database.ts       # Configuración PostgreSQL
+│   ├── middleware/
+│   │   └── auth.ts           # Middleware JWT
+│   ├── routes/
+│   │   ├── auth.ts           # Rutas de autenticación
+│   │   ├── customers.ts      # CRUD clientes
+│   │   ├── orders.ts         # CRUD pedidos
+│   │   └── materials.ts      # CRUD materiales
+│   ├── database/
+│   │   ├── schema.sql        # Esquema de BD
+│   │   └── migrate.ts        # Script de migración
+│   └── index.ts              # Servidor principal
+│
+├── src/                       # Frontend React
+│   ├── components/           # Componentes React
 │   │   ├── Dashboard.tsx
 │   │   ├── OrderBoard.tsx
 │   │   ├── InventoryManagement.tsx
+│   │   ├── CustomerList.tsx
 │   │   └── ...
-│   ├── contexts/            # Contextos de React
-│   │   └── AuthContext.tsx
-│   ├── hooks/               # Hooks personalizados
-│   │   └── useOrders.ts
-│   ├── lib/                 # Configuración de librerías
-│   │   └── supabase.ts
-│   ├── utils/               # Utilidades y algoritmos
-│   │   ├── algorithms/      # Algoritmos de optimización
+│   ├── contexts/
+│   │   └── AuthContext.tsx   # Contexto de autenticación JWT
+│   ├── hooks/
+│   │   └── useOrders.ts      # Hooks personalizados
+│   ├── lib/
+│   │   └── api.ts            # Cliente API REST
+│   ├── utils/                # Utilidades y algoritmos
+│   │   ├── algorithms/       # Algoritmos de optimización
 │   │   ├── packing.ts
 │   │   └── ...
 │   ├── App.tsx
 │   └── main.tsx
-├── supabase/
-│   ├── migrations/          # Migraciones de base de datos
-│   └── functions/           # Edge Functions
-├── public/
-├── .env.example             # Plantilla de variables de entorno
-├── netlify.toml             # Configuración de Netlify
-├── DEPLOYMENT.md            # Guía completa de despliegue
-└── PRODUCTION_SETUP.md      # Guía rápida de configuración
+│
+├── .env.example              # Plantilla de variables
+├── CONFIGURAR_POSTGRESQL.md  # Guía de configuración BD
+├── INSTRUCCIONES_FINALES.md  # Documentación completa
+└── README_MIGRACION.md       # Guía rápida de setup
 ```
 
 ## Algoritmos de Optimización
@@ -129,6 +177,61 @@ El sistema incluye múltiples algoritmos de optimización de cortes:
 - **MaxRects:** Optimización de espacios rectangulares
 - **Skyline:** Algoritmo de línea de horizonte
 - **Pattern Guillotine:** Patrones de corte guillotina
+- **Optimizer:** Selección automática del mejor algoritmo
+
+## Base de Datos
+
+### Esquema Principal
+
+```sql
+VidrieriaTaller/
+├── user_profiles          # Usuarios con roles (admin/operator)
+├── customers              # Clientes del taller
+├── orders                 # Órdenes de trabajo
+├── order_items            # Items de cada orden
+├── materials_catalog      # Catálogo de materiales
+└── material_inventory     # Inventario de láminas/placas
+```
+
+### Migraciones
+
+El esquema completo se encuentra en `server/database/schema.sql`. Para aplicar:
+
+```bash
+npm run migrate
+```
+
+## API REST
+
+### Endpoints de Autenticación
+
+```
+POST   /api/auth/register    # Registrar usuario
+POST   /api/auth/login        # Iniciar sesión
+POST   /api/auth/logout       # Cerrar sesión
+GET    /api/auth/me           # Obtener perfil actual
+```
+
+### Endpoints de Datos (requieren autenticación)
+
+```
+GET    /api/customers         # Listar clientes
+POST   /api/customers         # Crear cliente
+PUT    /api/customers/:id     # Actualizar cliente
+DELETE /api/customers/:id     # Eliminar cliente
+
+GET    /api/orders            # Listar órdenes
+GET    /api/orders/:id        # Obtener orden
+POST   /api/orders            # Crear orden
+PUT    /api/orders/:id        # Actualizar orden
+DELETE /api/orders/:id        # Eliminar orden
+
+GET    /api/materials/catalog      # Catálogo materiales
+GET    /api/materials/inventory    # Inventario
+POST   /api/materials/inventory    # Agregar material
+PUT    /api/materials/inventory/:id    # Actualizar
+DELETE /api/materials/inventory/:id    # Eliminar
+```
 
 ## Roles y Permisos
 
@@ -136,7 +239,6 @@ El sistema incluye múltiples algoritmos de optimización de cortes:
 - Gestión completa de órdenes
 - Administración de inventario
 - Gestión de clientes
-- Configuración del sistema
 - Acceso a todas las funcionalidades
 
 ### Operador
@@ -145,52 +247,41 @@ El sistema incluye múltiples algoritmos de optimización de cortes:
 - Ver inventario
 - Acceso limitado a funcionalidades de gestión
 
-## Base de Datos
-
-El proyecto utiliza Supabase con PostgreSQL. Las migraciones se encuentran en `supabase/migrations/` y deben aplicarse en orden cronológico.
-
-### Tablas Principales
-
-- `user_profiles` - Perfiles de usuario y roles
-- `customers` - Clientes del taller
-- `orders` - Órdenes de trabajo
-- `order_items` - Piezas de cada orden
-- `materials_catalog` - Catálogo de materiales disponibles
-- `material_sheets` - Inventario de placas/láminas
-- `sheet_usage` - Registro de uso de materiales
-
 ## Seguridad
 
-El proyecto implementa Row Level Security (RLS) en todas las tablas:
+- **JWT Authentication:** Tokens seguros con expiración configurable
+- **Bcrypt Password Hashing:** Contraseñas hasheadas con salt
+- **SSL/TLS:** Conexiones seguras a PostgreSQL
+- **CORS:** Configurado para orígenes permitidos
+- **Prepared Statements:** Prevención de SQL injection
 
-- Los usuarios solo pueden acceder a sus propios datos
-- Los administradores tienen acceso completo
-- Las políticas RLS protegen contra accesos no autorizados
-- Todas las conexiones usan HTTPS
+## Troubleshooting
 
-## Variables de Entorno
+### Backend no conecta a PostgreSQL
 
-### Desarrollo
-```bash
-VITE_SUPABASE_URL=https://tu-proyecto-dev.supabase.co
-VITE_SUPABASE_ANON_KEY=tu-anon-key-dev
-```
+1. Verificar que PostgreSQL acepta conexiones remotas
+2. Verificar firewall permite puerto 5432
+3. Ejecutar: `npm run test:db`
+4. Ver guía en `CONFIGURAR_POSTGRESQL.md`
 
-### Producción
-Las variables se configuran en Netlify:
-- `VITE_SUPABASE_URL`
-- `VITE_SUPABASE_ANON_KEY`
+### Frontend no carga datos
 
-**IMPORTANTE:** Nunca hagas commit del archivo `.env` con credenciales reales.
+1. Verificar que backend está corriendo en puerto 3001
+2. Verificar variable `VITE_API_URL` en `.env`
+3. Abrir consola del navegador para ver errores
 
-## Soporte
+### Errores de autenticación
 
-Para problemas o preguntas:
+1. Verificar que migración se ejecutó: `npm run migrate`
+2. Verificar usuarios por defecto fueron creados
+3. Verificar variable `JWT_SECRET` en `.env`
 
-1. Revisa la documentación de despliegue
-2. Consulta los logs en Supabase y Netlify
-3. Revisa issues existentes en el repositorio
-4. Crea un nuevo issue con detalles del problema
+## Documentación Adicional
+
+- `INSTRUCCIONES_FINALES.md` - Guía completa de setup
+- `CONFIGURAR_POSTGRESQL.md` - Configuración paso a paso de PostgreSQL
+- `README_MIGRACION.md` - Guía rápida (5 minutos)
+- `DOCUMENTACION_TECNICA.md` - Documentación técnica detallada
 
 ## Licencia
 

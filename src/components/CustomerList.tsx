@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
 import { User, Building2, Phone, Mail, MapPin, Edit2, Trash2, Plus, Search } from 'lucide-react';
 import { Customer } from '../types';
-import { supabase } from '../lib/supabase';
+import { api } from '../lib/api';
 import { useAuth } from '../contexts/AuthContext';
 import { CustomerModal } from './CustomerModal';
 
 export function CustomerList() {
-  const { profile } = useAuth();
+  const { user } = useAuth();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -15,10 +15,10 @@ export function CustomerList() {
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
 
   useEffect(() => {
-    if (profile) {
+    if (user) {
       loadCustomers();
     }
-  }, [profile]);
+  }, [user]);
 
   useEffect(() => {
     if (searchQuery.trim() === '') {
@@ -38,12 +38,7 @@ export function CustomerList() {
   const loadCustomers = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
-        .from('customers')
-        .select('*')
-        .order('name', { ascending: true });
-
-      if (error) throw error;
+      const data = await api.get<Customer[]>('/api/customers');
       setCustomers(data || []);
       setFilteredCustomers(data || []);
     } catch (error) {
@@ -59,12 +54,7 @@ export function CustomerList() {
     }
 
     try {
-      const { error } = await supabase
-        .from('customers')
-        .delete()
-        .eq('id', customer.id);
-
-      if (error) throw error;
+      await api.delete(`/api/customers/${customer.id}`);
       loadCustomers();
     } catch (error) {
       console.error('Error deleting customer:', error);
@@ -91,7 +81,7 @@ export function CustomerList() {
     loadCustomers();
   };
 
-  if (!profile) {
+  if (!user) {
     return (
       <div className="flex items-center justify-center h-64">
         <p className="text-gray-500">Debes iniciar sesión para ver los clientes</p>
