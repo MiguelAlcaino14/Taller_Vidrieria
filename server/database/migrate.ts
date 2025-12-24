@@ -1,10 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 import pool from '../config/database';
 import bcrypt from 'bcryptjs';
 import dotenv from 'dotenv';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 async function runMigration() {
   const client = await pool.connect();
@@ -15,22 +19,46 @@ async function runMigration() {
     const schemaPath = path.join(__dirname, 'schema.sql');
     const schema = fs.readFileSync(schemaPath, 'utf-8');
 
-    const statements = schema
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--'));
+    const lines = schema.split('\n');
+    let currentStatement = '';
+    let lineNumber = 0;
 
-    for (const statement of statements) {
-      if (statement.includes('INSERT INTO user_profiles') && statement.includes('$2a$10$')) {
+    for (const line of lines) {
+      lineNumber++;
+      const trimmedLine = line.trim();
+
+      if (trimmedLine.startsWith('--') || trimmedLine.length === 0) {
         continue;
       }
 
-      try {
-        await client.query(statement);
-      } catch (error: any) {
-        if (!error.message.includes('already exists')) {
-          throw error;
+      currentStatement += line + '\n';
+
+      if (trimmedLine.endsWith(';')) {
+        const statement = currentStatement.trim();
+
+        if (statement.includes('INSERT INTO user_profiles') && statement.includes('$2a$10$')) {
+          console.log('Skipping default user insert (will create with bcrypt)...');
+          currentStatement = '';
+          continue;
         }
+
+        try {
+          console.log(`Executing: ${statement.substring(0, 80)}...`);
+          await client.query(statement);
+          console.log('✓ Success');
+        } catch (error: any) {
+          if (error.message.includes('already exists')) {
+            console.log('✓ Object already exists (skipping)');
+          } else if (error.message.includes('duplicate key')) {
+            console.log('✓ Duplicate key (skipping)');
+          } else {
+            console.error(`✗ Error at line ${lineNumber}: ${error.message}`);
+            console.error(`Statement: ${statement.substring(0, 200)}`);
+            throw error;
+          }
+        }
+
+        currentStatement = '';
       }
     }
 
